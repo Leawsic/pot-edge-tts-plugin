@@ -11,40 +11,56 @@ async function tts(text, lang, options = {}) {
     } = utils;
 
 
-
-    const server =
-        config.server ||
-        "https://tts.leawsic.ltd";
-
-
-
-    const apiKey =
-        config.apiKey ||
-        "";
+    let {
+        requestPath,
+        apiKey,
+        voice
+    } = config;
 
 
 
-    const voice =
-        config.voice ||
-        getDefaultVoice(lang);
+    if (
+        requestPath === undefined ||
+        requestPath.length === 0
+    ) {
+
+        requestPath =
+            "https://tts.leawsic.ltd";
+
+    }
+
+
+    if (!requestPath.startsWith("http")) {
+
+        requestPath =
+            "https://" + requestPath;
+
+    }
 
 
 
-    const speed =
-        config.speed ||
-        1.0;
+    if (
+        voice === undefined ||
+        voice.length === 0
+    ) {
+
+        voice =
+            getVoice(lang);
+
+    }
 
 
 
-    const response =
+    const res =
         await tauriFetch(
 
-            `${server}/v1/audio/speech`,
+            `${requestPath}/v1/audio/speech`,
 
             {
-                method: "POST",
 
-                headers: {
+                method:"POST",
+
+                headers:{
 
                     "Authorization":
                     `Bearer ${apiKey}`,
@@ -55,7 +71,7 @@ async function tts(text, lang, options = {}) {
                 },
 
 
-                body: JSON.stringify({
+                body:JSON.stringify({
 
                     model:
                     "tts-1",
@@ -67,10 +83,7 @@ async function tts(text, lang, options = {}) {
                     voice,
 
                     response_format:
-                    "mp3",
-
-                    speed:
-                    speed
+                    "mp3"
 
                 })
 
@@ -80,64 +93,64 @@ async function tts(text, lang, options = {}) {
 
 
 
-    if (!response.ok) {
+    if (!res.ok) {
 
-        throw new Error(
-            JSON.stringify(
-                response.data
-            )
-        );
+        throw `Http Request Error\nHttp Status: ${res.status}\n${JSON.stringify(res.data)}`;
 
     }
+
+
+
+    let audio;
 
 
 
     /*
-        OpenAI TTS 返回的是音频二进制
-
-        Pot 模板需要 audio 字符串
-
-        tauriFetch 返回结构不同版本可能不同
-
+      OpenAI TTS 返回二进制
+      转成 base64 给 Pot
     */
 
 
     if (
-        response.data.audio
+        res.data instanceof ArrayBuffer
     ) {
 
-        return response.data.audio;
+        audio =
+            arrayBufferToBase64(
+                res.data
+            );
 
     }
 
-
-
-    if (
-        response.data
-        instanceof Uint8Array
-    ) {
-
-        return arrayBufferToBase64(
-            response.data
-        );
-
-    }
-
-
-
-    if (
-        typeof response.data === "string"
+    else if (
+        res.data instanceof Uint8Array
     ){
 
-        return response.data;
+        audio =
+            uint8ArrayToBase64(
+                res.data
+            );
+
+    }
+
+    else if (
+        typeof res.data === "string"
+    ){
+
+        audio =
+            res.data;
+
+    }
+
+    else {
+
+        throw JSON.stringify(res.data);
 
     }
 
 
 
-    throw new Error(
-        "Unsupported audio response"
-    );
+    return audio;
 
 }
 
@@ -145,46 +158,42 @@ async function tts(text, lang, options = {}) {
 
 
 
-function getDefaultVoice(lang){
+function getVoice(lang){
 
 
-    if (
-        lang.startsWith("zh")
-    ){
+    switch(lang){
 
-        return "zh-CN-XiaoxiaoNeural";
+
+        case "zh_cn":
+
+            return "zh-CN-XiaoxiaoNeural";
+
+
+        case "zh_tw":
+
+            return "zh-TW-HsiaoChenNeural";
+
+
+        case "ja":
+
+            return "ja-JP-NanamiNeural";
+
+
+        case "ko":
+
+            return "ko-KR-SunHiNeural";
+
+
+        case "en":
+
+            return "en-US-AriaNeural";
+
+
+        default:
+
+            return "zh-CN-XiaoxiaoNeural";
 
     }
-
-
-    if (
-        lang.startsWith("ja")
-    ){
-
-        return "ja-JP-NanamiNeural";
-
-    }
-
-
-    if (
-        lang.startsWith("ko")
-    ){
-
-        return "ko-KR-SunHiNeural";
-
-    }
-
-
-    if (
-        lang.startsWith("en")
-    ){
-
-        return "en-US-AriaNeural";
-
-    }
-
-
-    return "zh-CN-XiaoxiaoNeural";
 
 }
 
@@ -194,10 +203,9 @@ function getDefaultVoice(lang){
 
 function arrayBufferToBase64(buffer){
 
-
     let binary = "";
 
-    const bytes =
+    let bytes =
         new Uint8Array(buffer);
 
 
@@ -223,6 +231,24 @@ function arrayBufferToBase64(buffer){
 
 
 
-export {
-    tts
-};
+function uint8ArrayToBase64(bytes){
+
+    let binary = "";
+
+    for(
+        let i=0;
+        i<bytes.length;
+        i++
+    ){
+
+        binary +=
+        String.fromCharCode(
+            bytes[i]
+        );
+
+    }
+
+
+    return btoa(binary);
+
+}
