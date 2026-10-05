@@ -1,35 +1,134 @@
 {
-  "id": "plugin.com.pot-app.lingva_tts",
-  "plugin_type": "tts",
-  "icon": "lingva.svg",
-  "display": "Lingva",
-  "homepage": "https://github.com/pot-app/pot-app-tts-plugin-template",
-  "needs": [{ "key": "requestPath", "display": "请求地址" }],
-  "language": {
-    "zh_cn": "zh",
-    "zh_tw": "zh_HANT",
-    "en": "en",
-    "ja": "ja",
-    "ko": "ko",
-    "fr": "fr",
-    "es": "es",
-    "ru": "ru",
-    "de": "de",
-    "it": "it",
-    "tr": "tr",
-    "pt_pt": "pt",
-    "pt_br": "pt",
-    "vi": "vi",
-    "id": "id",
-    "th": "th",
-    "ms": "ms",
-    "ar": "ar",
-    "hi": "hi",
-    "mn_cy": "mn",
-    "mn_mo": "mn",
-    "km": "km",
-    "nb_no": "no",
-    "nn_no": "no",
-    "fa": "fa"
-  }
+    "id": "plugin.com.pot-app.edge-tts",
+
+    "plugin_type": "tts",
+
+    "display": "Edge TTS",
+
+    "icon": "edge.svg",
+
+
+    "needs": [
+
+        {
+            "key": "server",
+
+            "display": "API Server",
+
+            "type": "text",
+
+            "default":
+            "https://tts.leawsic.ltd"
+        },
+
+
+        {
+            "key": "apiKey",
+
+            "display": "API Key",
+
+            "type": "text",
+
+            "default":
+            ""
+        },
+
+
+        {
+            "key": "voice",
+
+            "display": "Voice",
+
+            "type": "select",
+
+
+            "options": {
+
+
+                "zh-CN-XiaoxiaoNeural":
+                "中文 女声 Xiaoxiao",
+
+
+                "zh-CN-YunxiNeural":
+                "中文 男声 Yunxi",
+
+
+                "zh-CN-YunjianNeural":
+                "中文 男声 Yunjian",
+
+
+                "en-US-AriaNeural":
+                "English Female Aria",
+
+
+                "en-US-GuyNeural":
+                "English Male Guy",
+
+
+                "ja-JP-NanamiNeural":
+                "日本語 Nanami",
+
+
+                "ko-KR-SunHiNeural":
+                "한국어 SunHi"
+
+            }
+
+        },
+
+
+        {
+            "key":"speed",
+
+            "display":"Speed",
+
+            "type":"select",
+
+            "options":{
+
+                "0.8":
+                "Slow",
+
+                "1.0":
+                "Normal",
+
+                "1.2":
+                "Fast",
+
+                "1.5":
+                "Very Fast"
+
+            }
+
+        }
+
+
+    ],
+
+
+
+    "language": {
+
+
+        "zh_CN":
+        "zh-CN",
+
+
+        "zh_TW":
+        "zh-TW",
+
+
+        "en_US":
+        "en-US",
+
+
+        "ja_JP":
+        "ja-JP",
+
+
+        "ko_KR":
+        "ko-KR"
+
+    }
+
 }
