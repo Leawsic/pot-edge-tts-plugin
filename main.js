@@ -1,4 +1,4 @@
-async function tts(text, lang, options = {}) {
+async function tts(text, _lang, options = {}) {
 
     const {
         config,
@@ -7,22 +7,26 @@ async function tts(text, lang, options = {}) {
 
 
     const {
-        tauriFetch
+        http
     } = utils;
+
+
+    const {
+        fetch,
+        Body
+    } = http;
 
 
     let {
         requestPath,
         apiKey,
-        voice
+        voice,
+        speed
     } = config;
 
 
 
-    if (
-        requestPath === undefined ||
-        requestPath.length === 0
-    ) {
+    if (!requestPath) {
 
         requestPath =
             "https://tts.leawsic.ltd";
@@ -30,31 +34,61 @@ async function tts(text, lang, options = {}) {
     }
 
 
-    if (!requestPath.startsWith("http")) {
+    if (!/https?:\/\/.+/.test(requestPath)) {
 
         requestPath =
-            "https://" + requestPath;
+            `https://${requestPath}`;
+
+    }
+
+
+    if (requestPath.endsWith("/")) {
+
+        requestPath =
+            requestPath.slice(0, -1);
+
+    }
+
+
+    if (!requestPath.endsWith("/v1/audio/speech")) {
+
+        requestPath +=
+            "/v1/audio/speech";
 
     }
 
 
 
-    if (
-        voice === undefined ||
-        voice.length === 0
-    ) {
+    if (!apiKey) {
+
+        throw "apiKey is required";
+
+    }
+
+
+
+    if (!voice) {
 
         voice =
-            getVoice(lang);
+            "zh-CN-XiaoxiaoNeural";
+
+    }
+
+
+
+    if (!speed) {
+
+        speed =
+            1.0;
 
     }
 
 
 
     const res =
-        await tauriFetch(
+        await fetch(
 
-            `${requestPath}/v1/audio/speech`,
+            requestPath,
 
             {
 
@@ -62,30 +96,43 @@ async function tts(text, lang, options = {}) {
 
                 headers:{
 
-                    "Authorization":
-                    `Bearer ${apiKey}`,
-
                     "Content-Type":
-                    "application/json"
+                    "application/json",
+
+                    "Authorization":
+                    `Bearer ${apiKey}`
 
                 },
 
 
-                body:JSON.stringify({
+                body:
+
+                Body.json({
 
                     model:
                     "tts-1",
 
+
                     input:
                     text,
+
 
                     voice:
                     voice,
 
+
+                    speed:
+                    parseFloat(speed),
+
+
                     response_format:
                     "mp3"
 
-                })
+                }),
+
+
+                responseType:
+                3
 
             }
 
@@ -93,162 +140,22 @@ async function tts(text, lang, options = {}) {
 
 
 
-    if (!res.ok) {
+    if (res.ok) {
 
-        throw `Http Request Error\nHttp Status: ${res.status}\n${JSON.stringify(res.data)}`;
+        if (res.data) {
 
-    }
+            return res.data;
 
-
-
-    let audio;
+        }
 
 
-
-    /*
-      OpenAI TTS 返回二进制
-      转成 base64 给 Pot
-    */
-
-
-    if (
-        res.data instanceof ArrayBuffer
-    ) {
-
-        audio =
-            arrayBufferToBase64(
-                res.data
-            );
-
-    }
-
-    else if (
-        res.data instanceof Uint8Array
-    ){
-
-        audio =
-            uint8ArrayToBase64(
-                res.data
-            );
-
-    }
-
-    else if (
-        typeof res.data === "string"
-    ){
-
-        audio =
-            res.data;
-
-    }
-
-    else {
-
-        throw JSON.stringify(res.data);
-
-    }
-
-
-
-    return audio;
-
-}
-
-
-
-
-
-function getVoice(lang){
-
-
-    switch(lang){
-
-
-        case "zh_cn":
-
-            return "zh-CN-XiaoxiaoNeural";
-
-
-        case "zh_tw":
-
-            return "zh-TW-HsiaoChenNeural";
-
-
-        case "ja":
-
-            return "ja-JP-NanamiNeural";
-
-
-        case "ko":
-
-            return "ko-KR-SunHiNeural";
-
-
-        case "en":
-
-            return "en-US-AriaNeural";
-
-
-        default:
-
-            return "zh-CN-XiaoxiaoNeural";
-
-    }
-
-}
-
-
-
-
-
-function arrayBufferToBase64(buffer){
-
-    let binary = "";
-
-    let bytes =
-        new Uint8Array(buffer);
-
-
-    for(
-        let i=0;
-        i<bytes.length;
-        i++
-    ){
-
-        binary +=
-        String.fromCharCode(
-            bytes[i]
+        throw JSON.stringify(
+            res.data
         );
 
     }
 
 
-    return btoa(binary);
-
-}
-
-
-
-
-
-function uint8ArrayToBase64(bytes){
-
-    let binary = "";
-
-    for(
-        let i=0;
-        i<bytes.length;
-        i++
-    ){
-
-        binary +=
-        String.fromCharCode(
-            bytes[i]
-        );
-
-    }
-
-
-    return btoa(binary);
+    throw `Http Request Error\nHttp Status: ${res.status}\n${JSON.stringify(res.data)}`;
 
 }
