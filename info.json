@@ -1,40 +1,55 @@
 {
     "id": "plugin.com.pot-app.edge_tts",
-
     "plugin_type": "tts",
-
     "icon": "edge.svg",
-
     "display": "Edge TTS",
-
     "homepage": "https://github.com/travisvn/openai-edge-tts",
 
     "needs": [
         {
             "key": "requestPath",
-            "display": "请求地址"
+            "display": "请求路径",
+            "type": "input"
         },
         {
             "key": "apiKey",
-            "display": "API Key"
+            "display": "API Key",
+            "type": "input"
         },
         {
             "key": "voice",
-            "display": "声音"
+            "display": "声音",
+            "type": "select",
+            "options": {
+                "zh-CN-XiaoxiaoNeural": "晓晓（中文女声）",
+                "zh-CN-YunxiNeural": "云希（中文男声）",
+                "zh-CN-YunjianNeural": "云健（中文男声）",
+                "en-US-AriaNeural": "Aria（英语女声）",
+                "en-US-GuyNeural": "Guy（英语男声）",
+                "ja-JP-NanamiNeural": "Nanami（日语）",
+                "ko-KR-SunHiNeural": "SunHi（韩语）"
+            }
+        },
+        {
+            "key": "speed",
+            "display": "语速",
+            "type": "select",
+            "options": {
+                "0.5": 0.5,
+                "0.75": 0.75,
+                "1.0": 1.0,
+                "1.25": 1.25,
+                "1.5": 1.5,
+                "2.0": 2.0
+            }
         }
     ],
 
     "language": {
-
-        "zh_cn": "zh-CN",
-
-        "zh_tw": "zh-TW",
-
-        "en": "en-US",
-
-        "ja": "ja-JP",
-
-        "ko": "ko-KR"
-
+        "zh_cn": "zh",
+        "zh_tw": "zh",
+        "en": "en",
+        "ja": "jp",
+        "ko": "ko"
     }
 }
